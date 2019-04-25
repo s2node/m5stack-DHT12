@@ -39,6 +39,9 @@ WiFiClient ambientWiFiClient;
 unsigned int ambientChannelId = AMBIENT_CHANNEL_ID;   // WiFiSSID.h に書く：#define AMBIENT_CHANNEL_ID 10000000
 const char* ambientWriteKey  = AMBINET_WRITE_KEY;     // WiFiSSID.h に書く：#define AMBINET_WRITE_KEY "abcd12345"
 
+int uploadIntervalCounter = 0; // Ambient へアップロードするインターバルを管理する変数。12回に1回だけアップロードするとか。
+#define UPLOAD_INTERVAL_COUNT 12 
+
 // WiFi接続確認とAmbientへの接続
 bool IsWiFiConnected()
 {
@@ -168,10 +171,14 @@ void loop() {
   img.pushSprite(0, 0);
   delay(2500);
   // 描画とWiFi通信を同時にすると，描画が遅くなってチカチカするので，時間差(2.5秒差)で処理
-  if(IsWiFiConnected()) {
-    ambient.set(1, nowTemperature); 
-    ambient.set(2, nowHumidity);
-    ambient.send();
-  }  
+  uploadIntervalCounter++;
+  if(uploadIntervalCounter >= UPLOAD_INTERVAL_COUNT) { 
+    if(IsWiFiConnected()) {
+      ambient.set(1, nowTemperature); 
+      ambient.set(2, nowHumidity);
+      ambient.send();
+      uploadIntervalCounter = 0;
+    }
+  }
   delay(2500);
 }
