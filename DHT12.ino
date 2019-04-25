@@ -54,6 +54,7 @@ bool IsWiFiConnected()
       ambient.begin(ambientChannelId, ambientWriteKey, &ambientWiFiClient);
     }
   }
+  return bConnected;
 }
 
 void setup() {
