@@ -18,10 +18,16 @@ ToDo:
 
 */
 
+// WiFi使わない，アップロードしないオフラインモード
+//#define OFFLINE_MODE
+
+#ifndef OFFLINE_MODE
 // https://github.com/AmbientDataInc/Ambient_ESP8266_lib
 #include <Ambient.h>
 
 #include <WiFi.h>
+#endif
+
 #include <M5Stack.h>
 
 // https://github.com/m5stack/M5Stack/blob/master/examples/Modules/DHT12/DHT12.ino
@@ -30,6 +36,7 @@ ToDo:
 DHT12 dht12;          //Preset scale CELSIUS and ID 0x5c.
 TFT_eSprite img = TFT_eSprite(&M5.Lcd);
 
+#ifndef OFFLINE_MODE
 #include "WiFiSSID.h"
 const char* ssid     = MY_WIFI_SSID;          // SSID は WiFiSSID.h に書く： #define MY_WIFI_SSID "ABCD" 
 const char* password = MY_WIFI_PASSWORD;      // パスワード は WiFiSSID.h  に書く： #define MY_WIFI_PASSWORD "ABCD" 
@@ -63,6 +70,9 @@ bool IsWiFiConnected()
   }
   return bConnected;
 }
+#endif
+// OFFLINE_MODE
+
 
 void setup() {
   M5.begin();
@@ -73,7 +83,9 @@ void setup() {
   img.pushSprite(0, 0);
   
   M5.Lcd.setBrightness(60);
+#ifndef OFFLINE_MODE
   WiFi.begin(ssid, password);
+#endif
 }
 
 inline
@@ -173,6 +185,10 @@ void loop() {
 */
 
   img.pushSprite(0, 0);
+
+#ifdef OFFLINE_MODE
+  delay(5000);
+#else
   delay(2500);
   // 描画とWiFi通信を同時にすると，描画が遅くなってチカチカするので，時間差(2.5秒差)で処理
   uploadIntervalCounter++;
@@ -187,4 +203,5 @@ void loop() {
     }
   }
   delay(2500);
+#endif
 }
