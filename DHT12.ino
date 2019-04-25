@@ -39,11 +39,12 @@ WiFiClient ambientWiFiClient;
 unsigned int ambientChannelId = AMBIENT_CHANNEL_ID;   // WiFiSSID.h に書く：#define AMBIENT_CHANNEL_ID 10000000
 const char* ambientWriteKey  = AMBINET_WRITE_KEY;     // WiFiSSID.h に書く：#define AMBINET_WRITE_KEY "abcd12345"
 
-int uploadIntervalCounter = 0; // Ambient へアップロードするインターバルを管理する変数。12回に1回だけアップロードするとか。
 // 1分毎にアップロード
 //#define UPLOAD_INTERVAL_COUNT 12 
 // 5分毎にアップロード
 #define UPLOAD_INTERVAL_COUNT (12*5) 
+// Ambient へアップロードするインターバルを管理する変数。12回に1回だけアップロードするとか。初回すぐアップロードできるように値をセットしておく。
+int uploadIntervalCounter = UPLOAD_INTERVAL_COUNT; 
 
 // WiFi接続確認とAmbientへの接続
 bool IsWiFiConnected()
@@ -181,6 +182,8 @@ void loop() {
       ambient.set(2, nowHumidity);
       ambient.send();
       uploadIntervalCounter = 0;
+    } else {
+      uploadIntervalCounter = UPLOAD_INTERVAL_COUNT; // オフライン時は次オンラインになったらすぐアップロードするのと値のインクリメントでオーバーフローしてマイナスになるのを防ぐ
     }
   }
   delay(2500);
