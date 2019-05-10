@@ -26,6 +26,8 @@ ToDo:
 #include <Ambient.h>
 
 #include <WiFi.h>
+#include <WiFiMulti.h>
+WiFiMulti wifiMulti;
 #endif
 
 #include <M5Stack.h>
@@ -38,8 +40,8 @@ TFT_eSprite img = TFT_eSprite(&M5.Lcd);
 
 #ifndef OFFLINE_MODE
 #include "WiFiSSID.h"
-const char* ssid     = MY_WIFI_SSID;          // SSID は WiFiSSID.h に書く： #define MY_WIFI_SSID "ABCD" 
-const char* password = MY_WIFI_PASSWORD;      // パスワード は WiFiSSID.h  に書く： #define MY_WIFI_PASSWORD "ABCD" 
+//const char* ssid     = MY_WIFI_SSID;          // SSID は WiFiSSID.h に書く： #define MY_WIFI_SSID "ABCD" 
+//const char* password = MY_WIFI_PASSWORD;      // パスワード は WiFiSSID.h  に書く： #define MY_WIFI_PASSWORD "ABCD" 
 
 Ambient ambient;
 WiFiClient ambientWiFiClient;
@@ -59,11 +61,11 @@ bool IsWiFiConnected()
   static bool bConnected = false;
 
   if(bConnected) {
-    if (WiFi.status() != WL_CONNECTED) {
+   if(wifiMulti.run() != WL_CONNECTED) { //if (WiFi.status() != WL_CONNECTED) {
       bConnected = false;
     }
   }else {
-    if (WiFi.status() == WL_CONNECTED) {
+    if(wifiMulti.run() == WL_CONNECTED) { //if (WiFi.status() == WL_CONNECTED) {
       bConnected = true;
       ambient.begin(ambientChannelId, ambientWriteKey, &ambientWiFiClient);
     }
@@ -84,7 +86,10 @@ void setup() {
   
   M5.Lcd.setBrightness(60);
 #ifndef OFFLINE_MODE
-  WiFi.begin(ssid, password);
+//  WiFi.begin(ssid, password);
+  wifiMulti.addAP(MY_WIFI_SSID1, MY_WIFI_PASSWORD1);
+  wifiMulti.addAP(MY_WIFI_SSID2, MY_WIFI_PASSWORD2);
+  wifiMulti.addAP(MY_WIFI_SSID3, MY_WIFI_PASSWORD3);
 #endif
 }
 
